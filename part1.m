@@ -19,6 +19,7 @@ i
         si = size(fy{j});
         if  si(2) <11
             point(j,:) = NaN;
+            rgb(j,:) = NaN;
         end
     end 
     
@@ -37,11 +38,11 @@ i
     
     %1.1 irrelevant points far away
     z_threshold = find(point(:,3) > 3.5 | point(:,3) < -3.5);
-    point(z_threshold,3) = 3.5;
-    x_threshold = find(point(:,1) > 3.5 | point(:,1) < -3.5);
-    point(x_threshold,1) = 3.5;
-    y_threshold = find(point(:,2) > 3.5 | point(:,2) < -3.5);
-    point(y_threshold,2) = 3.5;
+    %point(z_threshold,3) = 3.5;
+    %x_threshold = find(point(:,1) > 3.5 | point(:,1) < -3.5);
+    %point(x_threshold,1) = 3.5;
+    %y_threshold = find(point(:,2) > 3.5 | point(:,2) < -3.5);
+    %point(y_threshold,2) = 3.5;
      
     
     %1.2 a person in one frame
@@ -61,17 +62,16 @@ i
     new_image = imag2d(rgb); % Shows the 2D images
     grey_image = rgb2gray(new_image);
     [frames, des] = vl_sift(single(grey_image));
-    
+
     info.rgb{i} = rgb;
     info.point{i} = point;
     info.frames{i} = frames;
     info.des{i} = des;
    
-%     figure(1) 
-%     pcshow(pc)
-%     figure(2)
-%     imshow(new_image)        
-%     pause
+%      figure(1) 
+%      pcshow(pc)
+%       figure(2)
+%       imshow(new_image)        
+%       pause
 end
-
 save info.mat info
