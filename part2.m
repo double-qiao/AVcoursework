@@ -1,13 +1,19 @@
 info = load('info.mat');
 
-start = 23;
+i = 1;
 pre = 0;
 flag = 0;
-pc = pointCloud(info.info.point{start}, 'Color', info.info.rgb{start});
-for i = start+1:length(info.info.rgb)
+pc = pointCloud(info.info.point{i}, 'Color', info.info.rgb{i});
+% pc = pcread('pc1_24.ply');
+while(i< 40)
+    i = i + 1;
     if flag == 0
         pre = i - 1;
     end
+    if i == 27  % jump out (27,28), instead (26,28)
+        i = 28;
+    end
+    
     flag = 0;
     [pre, i]
     % find match
@@ -41,15 +47,21 @@ for i = start+1:length(info.info.rgb)
 %     [idx, dist] = knnsearch(info.info.point{pre}, info.info.point{pre},'K',2);
 %     dist = rmmissing(dist,1); % rm NaN
 %     dist_threhold = man(dist(:,2));
-    dist_threhold = 0.05;
+    dist_threhold = 0.1;
     R_Finnal = [];
     T_Final = [];
     w_min = size(matches,2);
     pointp_Final = [];
     pointq_Final = [];
-    iter = 3000; % RANSAC iteration times
+    if i == 25 || i == 37
+        iter = 50000; % RANSAC iteration times
+%     elseif i < 25
+%         iter = 20000;
+    else
+        iter = 10000;
+    end
     for k = 1:iter
-        sizes = min(size(matches,2), 30);
+        sizes = min(size(matches,2), ceil(20 * rand) + 9); % select 10-20+ match points
         % caculate rotation
         index = randperm(size(matches,2), sizes); % random select 30 match points
         %find randpoint in image1
@@ -68,10 +80,13 @@ for i = start+1:length(info.info.rgb)
         end
     
         % delete nan rows
-        temp = cat(1, find(isnan(ps(:,1))), find(isnan(qs(:,1))));
+        temp = cat(1, find(isnan(ps(:,1))), find(isnan(qs(:,1))), find(isnan(ps(:,2))), find(isnan(qs(:,2))), find(isnan(ps(:,3))), find(isnan(qs(:,3))));
         ps(temp, :) = [];
         qs(temp, :) = [];
-    
+        if size(ps, 1) < 3
+            continue;
+        end
+        
         %caculate transform R and T
         H = ps' * qs;
         [U, S, V] = svd(H);
@@ -102,7 +117,7 @@ for i = start+1:length(info.info.rgb)
         temp = cat(1, find(isnan(p(:,1))), find(isnan(q(:,1))));
         p(temp, :) = [];
         q(temp, :) = [];
-
+        
         for ii = 1:size(p,1)
             p_new = R * p(ii, :)' + T;
             temp = q(ii,:) - p_new';
@@ -123,17 +138,28 @@ for i = start+1:length(info.info.rgb)
             pointq_Final = pointq;
         end
     end
-    if size(pointq_Final,1) < 3  %maybe better method
-        flag = 1;
-        continue;
+
+    if size(pointq_Final,1) < 3 
+    flag = 1;
+    continue;
+    %pointp_Final = p;
+    %pointq_Final = q;
     end
     
     %icp
     tform = pcregistericp(pointCloud(pointp_Final), pointCloud(pointq_Final));
-    pc = pctransform(pc, tform);
+    pc1 = pctransform(pc, tform);
     pc2 = pointCloud(info.info.point{i}, 'Color', info.info.rgb{i});
-    pc = pcmerge(pc, pc2, 0.003);
+    pc1 = pcmerge(pc1, pc2, 0.003);
     figure(2);
-    pcshow(pc);
-    %pause
+    pcshow(pc1);
+    if i == 25
+        str = input('is this right?(y/n)','s');
+        if str ~= 'y'
+            i = i - 1;
+            continue;
+        end
+    end
+    pc = pc1;
 end
+pcwrite(pc, 'pc1_40(without27)');

@@ -38,7 +38,8 @@ i
     
     %1.1 irrelevant points far away
     z_threshold = find(point(:,3) > 3.5 | point(:,3) < -3.5);
-    %point(z_threshold,3) = 3.5;
+    point(z_threshold,3) = 3.5;
+    % rgb(z_threshold,:) = 0;
     %x_threshold = find(point(:,1) > 3.5 | point(:,1) < -3.5);
     %point(x_threshold,1) = 3.5;
     %y_threshold = find(point(:,2) > 3.5 | point(:,2) < -3.5);
@@ -52,8 +53,7 @@ i
             point((ii-1)*640+110:(ii-1)*640+320,:) = NaN;
             rgb((ii-1)*640+110:(ii-1)*640+320,:) = 0;
         end
-    end
-    
+    end     
     
     %1.5 noisy ripples
     
