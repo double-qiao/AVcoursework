@@ -1,4 +1,4 @@
-function new_rgb = imag2d(rgb)
+ function new_rgb = imag2d(rgb)
     new_rgb =[];
     color_pc = rgb;
 

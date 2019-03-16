@@ -23,6 +23,8 @@ i
         end
     end 
     
+    
+    
     %1.4 deformed data near the edges of the image
     for j = 4:476
         point(j*640+1:j*640+5,:) = NaN;
@@ -32,8 +34,8 @@ i
     end
     point(1:640*5,:) = NaN;
     rgb(1:640*5,:) = NaN;
-    point(640*476:640*480,:) = NaN;
-    rgb(640*476:640*480,:) = NaN;  
+    point(640*475+1:640*480,:) = NaN;
+    rgb(640*475+1:640*480,:) = NaN;  
     
     
     %1.1 irrelevant points far away

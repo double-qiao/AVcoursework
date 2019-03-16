@@ -1,18 +1,19 @@
 info = load('info.mat');
 
-i = 1;
-pre = 0;
+i = 5;
+pre = 40;
 flag = 0;
 pc = pointCloud(info.info.point{i}, 'Color', info.info.rgb{i});
 % pc = pcread('pc1_24.ply');
-while(i< 40)
-    i = i + 1;
+while(i > 1)
+    i = i - 1;
     if flag == 0
-        pre = i - 1;
+        pre = i + 1;
     end
     if i == 27  % jump out (27,28), instead (26,28)
-        i = 28;
+        i = 26;
     end
+    
     
     flag = 0;
     [pre, i]
@@ -47,14 +48,15 @@ while(i< 40)
 %     [idx, dist] = knnsearch(info.info.point{pre}, info.info.point{pre},'K',2);
 %     dist = rmmissing(dist,1); % rm NaN
 %     dist_threhold = man(dist(:,2));
-    dist_threhold = 0.1;
+    dist_threhold = 0.02;
     R_Finnal = [];
     T_Final = [];
     w_min = size(matches,2);
     pointp_Final = [];
     pointq_Final = [];
-    if i == 25 || i == 37
+    if i == 24 % || i == 36
         iter = 50000; % RANSAC iteration times
+        dist_threhold = 0.1;
 %     elseif i < 25
 %         iter = 20000;
     else
@@ -153,13 +155,16 @@ while(i< 40)
     pc1 = pcmerge(pc1, pc2, 0.003);
     figure(2);
     pcshow(pc1);
-    if i == 25
+    if i == 24 || i == 36
         str = input('is this right?(y/n)','s');
         if str ~= 'y'
-            i = i - 1;
+            i = i + 1;
             continue;
         end
     end
     pc = pc1;
+
 end
-pcwrite(pc, 'pc1_40(without27)');
+pc = pcdenoise(pc);
+pcshow(pc);
+% pcwrite(pc, 'pc40_1(without27)');
