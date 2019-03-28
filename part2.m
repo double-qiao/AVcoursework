@@ -1,11 +1,11 @@
 info = load('info.mat');
 
-i = 5;
+i = 40;
 pre = 40;
 flag = 0;
 pc = pointCloud(info.info.point{i}, 'Color', info.info.rgb{i});
 % pc = pcread('pc1_24.ply');
-while(i > 1)
+while(i > 30)
     i = i - 1;
     if flag == 0
         pre = i + 1;
@@ -21,24 +21,24 @@ while(i > 1)
     matches = vl_ubcmatch(info.info.des{pre}, info.info.des{i});
     
 %     % draw match sift image
-%     figure(1)
-%     subplot(1,2,1)
-%     img = imag2d(info.info.rgb{pre});
-%     image(img);
-%     h1   = vl_plotframe(info.info.frames{pre}(:,matches(1,:))) ; set(h1,'color','green','linewidth',1) ;
-%     k = setdiff(info.info.frames{pre}', info.info.frames{pre}(:,matches(1,:))', 'row');
-%     h2   = vl_plotframe(k') ; set(h2,'color','red','linewidth',1) ;
-%     box off;
-%     axis off;
-%     
-%     subplot(1,2,2)
-%     img = imag2d(info.info.rgb{i});
-%     image(img);
-%     h3   = vl_plotframe(info.info.frames{i}(:,matches(2,:))) ; set(h3,'color','green','linewidth',1) ;
-%     k = setdiff(info.info.frames{i}', info.info.frames{i}(:,matches(2,:))', 'row');
-%     h4   = vl_plotframe(k') ; set(h4,'color','red','linewidth',1) ;
-%     box off;
-%     axis off;
+    figure(1)
+    subplot(1,2,1)
+    img = imag2d(info.info.rgb{pre});
+    image(img);
+    h1   = vl_plotframe(info.info.frames{pre}(:,matches(1,:))) ; set(h1,'color','green','linewidth',1) ;
+    k = setdiff(info.info.frames{pre}', info.info.frames{pre}(:,matches(1,:))', 'row');
+    h2   = vl_plotframe(k') ; set(h2,'color','red','linewidth',1) ;
+    box off;
+    axis off;
+    
+    subplot(1,2,2)
+    img = imag2d(info.info.rgb{i});
+    image(img);
+    h3   = vl_plotframe(info.info.frames{i}(:,matches(2,:))) ; set(h3,'color','green','linewidth',1) ;
+    k = setdiff(info.info.frames{i}', info.info.frames{i}(:,matches(2,:))', 'row');
+    h4   = vl_plotframe(k') ; set(h4,'color','red','linewidth',1) ;
+    box off;
+    axis off;
 %     filename = strcat(num2str(pre),"_",num2str(i), '.jpg');    
 %     saveas(1, filename);
     
@@ -150,11 +150,18 @@ while(i > 1)
     
     %icp
     tform = pcregistericp(pointCloud(pointp_Final), pointCloud(pointq_Final));
-    pc1 = pctransform(pc, tform);
+    pca = pctransform(pc, tform);
+    pc1 = pointCloud(info.info.point{pre}, 'Color', info.info.rgb{pre});
+    pc1 = pctransform(pc1, tform);
     pc2 = pointCloud(info.info.point{i}, 'Color', info.info.rgb{i});
+    pca = pcmerge(pca, pc2, 0.003);
     pc1 = pcmerge(pc1, pc2, 0.003);
+    % show the registered point clouds
     figure(2);
     pcshow(pc1);
+    figure(3);
+    pcshow(pca);
+    % pause
     if i == 24 || i == 36
         str = input('is this right?(y/n)','s');
         if str ~= 'y'
@@ -162,7 +169,7 @@ while(i > 1)
             continue;
         end
     end
-    pc = pc1;
+    pc = pca;
 
 end
 pc = pcdenoise(pc);
